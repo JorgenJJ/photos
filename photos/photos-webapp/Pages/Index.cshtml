@@ -7,23 +7,55 @@
 <div class="content">
     <div class="image">
         <div class="info-box">
-            <img src="https://photosblobstorage.blob.core.windows.net/images/20170120_131435.jpg" id="img_data" alt="Alternate Text" height="0" width="0" onload="getExif()" />
-            <p id="info-fotograf">info her</p>
+            <img src="https://photosblobstorage.blob.core.windows.net/images/20171225_160258.jpg" id="img_data" alt="Alternate Text" height="0" width="0" onload="getExif()" />
+            <p id="info-dato" class="info-text">00.00.0000</p>
+            <p id="info-sted" class="info-text">City, Country</p>
         </div>
     </div>
-    <!--<script src="../vendors/exif-js/exif.js"></script>-->
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+
         function getExif() {
             var img = document.getElementById("img_data");
             EXIF.getData(img, function () {
-                alert("Exif started");
-                alert(EXIF.getTag(this, "Make"));
-                var make = EXIF.getTag(this, "Make");
-                var model = EXIF.getTag(this, "Model");
-                var makeAndModel = document.getElementById("info-fotograf");
-                makeAndModel.innerHTML = `${make} ${model}`;
+                var date = EXIF.getTag(this, "GPSDateStamp");
+                var GPSlat = EXIF.getTag(this, "GPSLatitude");
+                var GPSlng = EXIF.getTag(this, "GPSLongitude");
+
+                var lat = convertToCoordinate(GPSlat);
+                var lng = convertToCoordinate(GPSlng);
+
+                getAndSetLocation(lat, lng);
+
+                var dateElement = document.getElementById("info-dato");
+                dateElement.innerHTML = parseDate(date);
             });
+        }
+
+        function parseDate(rawDate) {
+            var list = rawDate.split(":");
+            var newDate = `${list[2]}.${list[1]}.${list[0]}`;
+            return newDate;
+        }
+
+        function convertToCoordinate(latlng, dir) {
+            var coord = latlng[0] + (latlng[1] / 60) + (latlng[2] / 3600);
+
+            if (dir == "S" || dir == "W") {
+                coord = coord * -1;
+            }
+            return coord;
+        }
+
+        function getAndSetLocation(lat, lng) {
+            $.get("https://dev.virtualearth.net/REST/v1/Locations/" + lat + "," + lng + "?o=json&key=AiQO9NkmAiO3bqQHC9x-kuT6QsZ56CTyTZ_Gg_D4HV42PMpji8lcBPz2E9B7Povy",
+                function (data, status) {
+                    var location = data.resourceSets[0].resources[0].address;
+
+                    var placeElement = document.getElementById("info-sted");
+                    placeElement.innerHTML = location.locality + ", " + location.countryRegion;
+                });
         }
     </script>
 </div>
