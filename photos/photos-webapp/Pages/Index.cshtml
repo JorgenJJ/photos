@@ -4,7 +4,26 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="content">
+    <div class="image">
+        <div class="info-box">
+            <img src="https://photosblobstorage.blob.core.windows.net/images/20170120_131435.jpg" id="img_data" alt="Alternate Text" height="0" width="0" onload="getExif()" />
+            <p id="info-fotograf">info her</p>
+        </div>
+    </div>
+    <!--<script src="../vendors/exif-js/exif.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script>
+        function getExif() {
+            var img = document.getElementById("img_data");
+            EXIF.getData(img, function () {
+                alert("Exif started");
+                alert(EXIF.getTag(this, "Make"));
+                var make = EXIF.getTag(this, "Make");
+                var model = EXIF.getTag(this, "Model");
+                var makeAndModel = document.getElementById("info-fotograf");
+                makeAndModel.innerHTML = `${make} ${model}`;
+            });
+        }
+    </script>
 </div>
